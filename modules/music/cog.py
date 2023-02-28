@@ -4,7 +4,10 @@ from youtube_dl import YoutubeDL
 from collections import deque
 
 
-class MusicCog(commands.Cog):
+class MusicCog(commands.Cog, name="Music Player"):
+    """Music player commands"""
+    COG_EMOJI = "🎧"
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -158,5 +161,5 @@ class MusicCog(commands.Cog):
     #     await self.vc.disconnect()
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(MusicCog(bot))
