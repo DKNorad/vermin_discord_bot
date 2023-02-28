@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from youtube_dl import YoutubeDL
 from collections import deque
+from config import VC_CHANNEL_NAME
 
 
 class MusicCog(commands.Cog, name="Music Player"):
@@ -20,32 +21,27 @@ class MusicCog(commands.Cog, name="Music Player"):
 
         self.vc = None
 
-    @commands.command()
-    async def join(self, ctx, channel_name):
-        # channel = discord.utils.get(guild.voice_channels, name=channel_name, bitrate=64000)
-        # print(channel)
-        # self.vc = channel
-        # await channel.connect()
-        pass
+    async def _join(self, ctx):
+        channel = discord.utils.get(ctx.guild.voice_channels, name=VC_CHANNEL_NAME, bitrate=64000)
+        self.vc = channel
+        await channel.connect()
 
-    @commands.command()
-    async def leave(self, ctx):
+    async def leave(self):
         try:
             await self.vc.disconnect()
             self.vc = None
         except Exception as e:
             print(e)
 
-    # @commands.command()
-    # def search_yt(self, item):
-    #     with YoutubeDL(self.YDL_OPTIONS) as ydl:
-    #         try:
-    #             info = ydl.extract_info("ytsearch:%s" % item, download=False)['entries'][0]
-    #         except Exception:
-    #             return False
-    #
-    #     return {'source': info['formats'][0]['url'], 'title': info['title']}
-    #
+    def search_yt(self, item):
+        with YoutubeDL(self.YDL_OPTIONS) as ydl:
+            try:
+                info = ydl.extract_info("ytsearch:%s" % item, download=False)['entries'][0]
+            except Exception:
+                return False
+
+        return {'source': info['formats'][0]['url'], 'title': info['title']}
+
     # @commands.command()
     # def play_next(self):
     #     if len(self.music_queue) > 0:
@@ -86,27 +82,25 @@ class MusicCog(commands.Cog, name="Music Player"):
     #     else:
     #         self.is_playing = False
     #
-    # @commands.command(name="play", aliases=["p", "playing"], help="Plays a selected song from youtube")
-    # async def play(self, ctx, *args):
-    #     query = " ".join(args)
-    #
-    #     voice_channel = ctx.author.voice.channel
-    #     if voice_channel is None:
-    #         # you need to be connected so that the bot knows where to go
-    #         await ctx.send("Connect to a voice channel!")
-    #     elif self.is_paused:
-    #         self.vc.resume()
-    #     else:
-    #         song = self.search_yt(query)
-    #         if type(song) == type(True):
-    #             await ctx.send(
-    #                 "Could not download the song. Incorrect format try another keyword. This could be due to playlist or a livestream format.")
-    #         else:
-    #             await ctx.send("Song added to the queue")
-    #             self.music_queue.append([song, voice_channel])
-    #
-    #             if not self.is_playing:
-    #                 await self.play_music(ctx)
+    @commands.command(name="play", aliases=["p", "playing"], help="Plays a selected song from youtube")
+    async def play(self, ctx, *args):
+        query = " ".join(args)
+
+        if self.vc is None:
+            await self._join()
+        elif self.is_paused:
+            self.vc.resume()
+        else:
+            song = self.search_yt(query)
+            if type(song) == type(True):
+                await ctx.send(
+                    "Could not download the song. Incorrect format try another keyword. This could be due to playlist or a livestream format.")
+            else:
+                await ctx.send("Song added to the queue")
+                self.music_queue.append([song, voice_channel])
+
+                if not self.is_playing:
+                    await self.play_music(ctx)
     #
     # @commands.command(name="pause", help="Pauses the current song being played")
     # async def pause(self, ctx, *args):
