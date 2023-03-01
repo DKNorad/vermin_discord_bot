@@ -60,8 +60,7 @@ class HelpCommand(commands.MinimalHelpCommand):
 
     async def _help_embed(
             self, title: str, description: Optional[str] = None, mapping: Optional[dict] = None,
-            command_set: Optional[Set[commands.Command]] = None, set_author: bool = False
-    ) -> Embed:
+            command_set: Optional[Set[commands.Command]] = None, set_author: bool = False) -> Embed:
         embed = Embed(title=title)
         if description:
             embed.description = description
