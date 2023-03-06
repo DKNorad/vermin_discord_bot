@@ -9,7 +9,7 @@ class Playlist:
 
     def __init__(self):
         # Stores the links of the songs in queue and the ones already played.
-        self.playque = deque()
+        self.playqueue = deque()
         self.playhistory = deque()
 
         # A separate history that remembers the names of the tracks that were played
@@ -18,7 +18,7 @@ class Playlist:
         self.loop = False
 
     def __len__(self):
-        return len(self.playque)
+        return len(self.playqueue)
 
     def add_name(self, trackname):
         self.trackname_history.append(trackname)
@@ -26,39 +26,39 @@ class Playlist:
             self.trackname_history.popleft()
 
     def add(self, track: Song):
-        self.playque.append(track)
+        self.playqueue.append(track)
 
     def next(self, song_played):
         if self.loop:
-            self.playque.appendleft(self.playhistory[-1])
+            self.playqueue.appendleft(self.playhistory[-1])
 
-        if len(self.playque) == 0:
+        if len(self.playqueue) == 0:
             return None
 
         if song_played != "Dummy":
             if len(self.playhistory) > MAX_HISTORY_LENGTH:
                 self.playhistory.popleft()
 
-        return self.playque[0]
+        return self.playqueue[0]
 
     def prev(self, current_song):
         if current_song is None:
-            self.playque.appendleft(self.playhistory[-1])
-            return self.playque[0]
+            self.playqueue.appendleft(self.playhistory[-1])
+            return self.playqueue[0]
 
         ind = self.playhistory.index(current_song)
-        self.playque.appendleft(self.playhistory[ind - 1])
+        self.playqueue.appendleft(self.playhistory[ind - 1])
         if current_song is not None:
-            self.playque.insert(1, current_song)
+            self.playqueue.insert(1, current_song)
 
     def shuffle(self):
-        random.shuffle(self.playque)
+        random.shuffle(self.playqueue)
 
     def move(self, oldindex: int, newindex: int):
-        temp = self.playque[oldindex]
-        del self.playque[oldindex]
-        self.playque.insert(newindex, temp)
+        temp = self.playqueue[oldindex]
+        del self.playqueue[oldindex]
+        self.playqueue.insert(newindex, temp)
 
     def empty(self):
-        self.playque.clear()
+        self.playqueue.clear()
         self.playhistory.clear()
