@@ -27,8 +27,7 @@ class MusicCog(commands.Cog, name="Music Player"):
         self.is_paused = False
         self.current_song = None
 
-        sett = utils.guild_to_settings[guild]
-        self.volume = sett.get('default_volume')
+        self.volume = 100
         self.timer = utils.Timer(self.timeout_handler)
         self.vc = None
 

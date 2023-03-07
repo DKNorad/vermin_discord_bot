@@ -4,8 +4,8 @@ from config import config
 # A dictionary that remembers which guild belongs to which audiocontroller
 guild_to_audiocontroller = {}
 
-# A dictionary that remembers which settings belongs to which guild
-guild_to_settings = {}
+# A dictionary that remembers which settings belong to which guild
+# guild_to_settings = {}
 
 
 def get_guild(bot, command):

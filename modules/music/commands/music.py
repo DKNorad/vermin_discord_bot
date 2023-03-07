@@ -20,14 +20,14 @@ class Music(commands.Cog):
         current_guild = utils.get_guild(self.bot, ctx.message)
         music_player = utils.guild_to_audiocontroller[current_guild]
 
-        if (await utils.is_connected(ctx) == None):
-            if await music_player.uconnect(ctx) == False:
+        if await utils.is_connected(ctx) is None:
+            if not await music_player.uconnect(ctx):
                 return
 
         if track.isspace() or not track:
             return
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         # reset timer
@@ -60,14 +60,14 @@ class Music(commands.Cog):
         current_guild = utils.get_guild(self.bot, ctx.message)
         music_player = utils.guild_to_audiocontroller[current_guild]
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
-        if len(music_player.playlist.playque) < 1 and current_guild.voice_client.is_playing() == False:
+        if len(music_player.playlist.playque) < 1 and current_guild.voice_client.is_playing() is False:
             await ctx.send("No songs in queue!")
             return
 
-        if music_player.playlist.loop == False:
+        if not music_player.playlist.loop:
             music_player.playlist.loop = True
             await ctx.send("Loop enabled :arrows_counterclockwise:")
         else:
@@ -80,7 +80,7 @@ class Music(commands.Cog):
         current_guild = utils.get_guild(self.bot, ctx.message)
         music_player = utils.guild_to_audiocontroller[current_guild]
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         if current_guild is None:
@@ -100,7 +100,7 @@ class Music(commands.Cog):
     async def _pause(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         if current_guild is None:
@@ -116,7 +116,7 @@ class Music(commands.Cog):
     async def _queue(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         if current_guild is None:
@@ -149,7 +149,7 @@ class Music(commands.Cog):
     async def _stop(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         music_player = utils.guild_to_audiocontroller[current_guild]
@@ -189,7 +189,7 @@ class Music(commands.Cog):
     async def _skip(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         music_player = utils.guild_to_audiocontroller[current_guild]
@@ -212,7 +212,7 @@ class Music(commands.Cog):
     async def _clear(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         music_player = utils.guild_to_audiocontroller[current_guild]
@@ -225,7 +225,7 @@ class Music(commands.Cog):
     async def _prev(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         music_player = utils.guild_to_audiocontroller[current_guild]
@@ -244,7 +244,7 @@ class Music(commands.Cog):
     async def _resume(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         if current_guild is None:
@@ -258,7 +258,7 @@ class Music(commands.Cog):
     async def _songinfo(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         if current_guild is None:
@@ -273,7 +273,7 @@ class Music(commands.Cog):
     async def _history(self, ctx):
         current_guild = utils.get_guild(self.bot, ctx.message)
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         if current_guild is None:
@@ -287,7 +287,7 @@ class Music(commands.Cog):
             await ctx.send(config.NO_GUILD_MESSAGE)
             return
 
-        if await utils.play_check(ctx) == False:
+        if not await utils.play_check(ctx):
             return
 
         if len(args) == 0:
@@ -310,5 +310,5 @@ class Music(commands.Cog):
             await ctx.send("Error: Volume must be a number 1-100")
 
 
-def setup(bot):
+async def setup(bot):
     await bot.add_cog(Music(bot))

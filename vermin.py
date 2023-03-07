@@ -25,9 +25,19 @@ from config.token import DISCORD_TOKEN
 #     bot.command_tree = app_commands.CommandTree(bot)
 #
 #
-initial_extensions = ['modules.commands.music', 'modules.commands.general', 'modules.plugins.button']
+from modules.music.music_controller import MusicCog
+
+initial_extensions = ['modules.music.commands.music', 'modules.commands.general', 'modules.plugins.button', 'modules.help.cog']
 bot = commands.Bot(command_prefix=config.PREFIX, pm_help=True, case_insensitive=True, intents=discord.Intents.all(),
                    help_command=None)
+
+
+async def load_ext():
+    for extension in initial_extensions:
+        try:
+            await bot.load_extension(extension)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
@@ -38,62 +48,59 @@ if __name__ == '__main__':
         print("Error: No bot token!")
         exit()
 
-    for extension in initial_extensions:
-        try:
-            bot.load_extension(extension)
-        except Exception as e:
-            print(e)
-
 
 @bot.event
 async def on_ready():
-    print(config.STARTUP_MESSAGE)
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Music, type {config.PREFIX}help"))
-
-    for guild in bot.guilds:
-        await register(guild)
-        print("Joined {}".format(guild.name))
-
-    print(config.STARTUP_COMPLETE_MESSAGE)
+    # print(config.STARTUP_MESSAGE)
+    await load_ext()
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game(name=f"Music, type {config.PREFIX}help"))
 
 
-@bot.event
-async def on_guild_join(guild):
-    print(guild.name)
-    await register(guild)
+
+    # for guild in bot.guilds:
+    #     await register(guild)
+    #     print("Joined {}".format(guild.name))
+    #
+    # print(config.STARTUP_COMPLETE_MESSAGE)
 
 
-async def register(guild):
-
-    guild_to_settings[guild] = Settings(guild)
-    guild_to_audiocontroller[guild] = AudioController(bot, guild)
-
-    sett = guild_to_settings[guild]
-
-    try:
-        await guild.me.edit(nick=sett.get('default_nickname'))
-    except:
-        pass
-
-    if config.GLOBAL_DISABLE_AUTOJOIN_VC:
-        return
-
-    vc_channels = guild.voice_channels
-
-    if not sett.get('vc_timeout'):
-        if sett.get('start_voice_channel') is None:
-            try:
-                await guild_to_audiocontroller[guild].register_voice_channel(guild.voice_channels[0])
-            except Exception as e:
-                print(e)
-
-        else:
-            for vc in vc_channels:
-                if vc.id == sett.get('start_voice_channel'):
-                    try:
-                        await guild_to_audiocontroller[guild].register_voice_channel(vc_channels[vc_channels.index(vc)])
-                    except Exception as e:
-                        print(e)
+# @bot.event
+# async def on_guild_join(guild):
+#     print(guild.name)
+#     await register(guild)
 
 
-bot.run(DISCORD_TOKEN, bot=True, reconnect=True, )
+# async def register(guild):
+#
+#     guild_to_settings[guild] = Settings(guild)
+#     guild_to_audiocontroller[guild] = MusicCog(bot, guild)
+#
+#     sett = guild_to_settings[guild]
+#
+#     try:
+#         await guild.me.edit(nick=sett.get('default_nickname'))
+#     except:
+#         pass
+#
+#     if config.GLOBAL_DISABLE_AUTOJOIN_VC:
+#         return
+#
+#     vc_channels = guild.voice_channels
+#
+#     if not sett.get('vc_timeout'):
+#         if sett.get('start_voice_channel') is None:
+#             try:
+#                 await guild_to_audiocontroller[guild].register_voice_channel(guild.voice_channels[0])
+#             except Exception as e:
+#                 print(e)
+#
+#         else:
+#             for vc in vc_channels:
+#                 if vc.id == sett.get('start_voice_channel'):
+#                     try:
+#                         await guild_to_audiocontroller[guild].register_voice_channel(vc_channels[vc_channels.index(vc)])
+#                     except Exception as e:
+#                         print(e)
+
+
+bot.run(DISCORD_TOKEN, reconnect=True, )
